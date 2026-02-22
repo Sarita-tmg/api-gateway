@@ -1,0 +1,99 @@
+http:
+  port: 8080
+
+admin:
+  port: 9876
+  host: localhost
+
+apiEndpoints:
+  api:
+    host: localhost
+    paths: '/ip'
+
+  seismicData:
+    host: localhost
+    paths: '/seismic/*'
+
+  daylightData:
+    host: localhost
+    paths: '/daylight/*'
+
+  issNow:
+    host: localhost
+    paths: '/iss/now'
+
+  issPeople:
+    host: localhost
+    paths: '/iss/people'
+
+serviceEndpoints:
+  httpbin:
+    url: 'https://httpbin.org'
+
+  seismic:
+    url: 'https://65ca483b3b05d29307e01640.mockapi.io/api'
+
+  daylight:
+    url: 'https://65ca483b3b05d29307e01640.mockapi.io/api/daylight'
+
+  iss:
+    url: 'http://api.open-notify.org'
+
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+
+pipelines:
+  default:
+    apiEndpoints:
+      - api
+    policies:
+      - proxy:
+          action:
+            serviceEndpoint: httpbin
+            changeOrigin: true
+
+  seismic:
+    apiEndpoints:
+      - seismicData
+    policies:
+      - log:
+          action:
+            message: '${req.method} ${req.originalUrl}'
+      - proxy:
+          action:
+            serviceEndpoint: seismic
+            changeOrigin: true
+
+  daylight:
+    apiEndpoints:
+      - daylightData
+    policies:
+      - proxy:
+          action:
+            serviceEndpoint: daylight
+            changeOrigin: true
+
+  issNow:
+    apiEndpoints:
+      - issNow
+    policies:
+      - proxy:
+          action:
+            serviceEndpoint: iss
+            changeOrigin: true
+
+  issPeople:
+    apiEndpoints:
+      - issPeople
+    policies:
+      - proxy:
+          action:
+            serviceEndpoint: iss
+            changeOrigin: true
